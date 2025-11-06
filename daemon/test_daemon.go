@@ -186,7 +186,7 @@ func NewTestDaemon(t *testing.T, opts TestOptions) *TestDaemon {
 	appSettings.BlockAssembly.GRPCAddress = clientAddr
 
 	// BlockPersister
-	_, listenAddr, _, err = util.GetListener(appSettings.Context, "blockpersister", "", ":0")
+	_, listenAddr, _, err = util.GetListener(appSettings.Context, "blockpersister", "http://", ":0")
 	require.NoError(t, err)
 	appSettings.Block.PersisterHTTPListenAddress = listenAddr
 
@@ -233,8 +233,6 @@ func NewTestDaemon(t *testing.T, opts TestOptions) *TestDaemon {
 	require.NoError(t, err)
 	appSettings.SubtreeValidation.GRPCListenAddress = listenAddr
 	appSettings.SubtreeValidation.GRPCAddress = clientAddr
-	appSettings.SubtreeValidation.SubtreeStore, err = url.Parse("memory:///")
-	require.NoError(t, err)
 
 	// Asset
 	_, listenAddr, clientAddr, err = util.GetListener(appSettings.Context, "asset", "http://", ":0")
@@ -302,6 +300,14 @@ func NewTestDaemon(t *testing.T, opts TestOptions) *TestDaemon {
 
 	err = os.MkdirAll(quorumPath, 0755)
 	require.NoError(t, err)
+
+	// Ensure a persistent subtree store across daemon restarts for tests
+	subtreeStoreDir := filepath.Join(path, "subtrees")
+	err = os.MkdirAll(subtreeStoreDir, 0755)
+	require.NoError(t, err)
+	appSettings.SubtreeValidation.SubtreeStore, err = url.Parse("file://./" + subtreeStoreDir)
+	require.NoError(t, err)
+
 	appSettings.Asset.CentrifugeDisable = true
 	appSettings.UtxoStore.DBTimeout = 500 * time.Second
 	appSettings.LocalTestStartFromState = "RUNNING"
@@ -346,6 +352,7 @@ func NewTestDaemon(t *testing.T, opts TestOptions) *TestDaemon {
 		"-blockassembly=1",
 		"-asset=1",
 		"-propagation=1",
+		"-blockpersister=1",
 	}
 
 	if opts.EnableRPC {

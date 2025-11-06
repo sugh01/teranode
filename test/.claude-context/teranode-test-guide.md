@@ -67,6 +67,63 @@ func TestMyScenario(t *testing.T) {
 5. **Error Handling**: Use `require.NoError(t, err)` for critical errors
 6. **Context**: Use `td.Ctx` or `context.Background()`
 
+### UTXO Retention and Deletion Behavior
+
+**CRITICAL: Understanding Parent Transaction Deletion**
+
+Parent transactions are only deleted from the UTXO store when TWO conditions are met:
+
+1. **The transaction is COMPLETELY SPENT** - All outputs have been consumed by child transactions
+2. **The retention period has expired** - Based on `GlobalBlockHeightRetention` setting
+
+**Deletion Timing Formula:**
+```
+If parent TX mined at block N
+And child TX fully spends it at block M
+And retention = R
+Then parent TX is deleted at block M + R + 1
+```
+
+**Example:**
+- Parent TX mined at block 4
+- Child TX fully spends it at block 6
+- Retention = 1
+- Parent TX deleted at block 7 (6 + 1 + 1)
+
+**Key Points:**
+- Partially spent transactions are NOT deleted (even one unspent output keeps the TX)
+- Retention timer starts AFTER the TX is fully spent, not when it's mined
+- Different nodes can have different retention policies (e.g., retention=1 vs retention=99999)
+- Reorg tests should verify nodes with aggressive pruning can sync with nodes that keep more data
+
+**Testing Pattern:**
+```go
+// Create parent with 2 outputs
+parentTx := td.CreateTransactionWithOptions(t,
+    transactions.WithInput(coinbaseTx, 0),
+    transactions.WithP2PKHOutputs(1, 1_000_000),  // Output 0
+    transactions.WithP2PKHOutputs(1, 2_000_000),  // Output 1
+)
+
+// Child must spend BOTH outputs to trigger deletion
+childTx := td.CreateTransactionWithOptions(t,
+    transactions.WithInput(parentTx, 0),  // Spend output 0
+    transactions.WithInput(parentTx, 1),  // Spend output 1 (FULLY SPENT)
+    transactions.WithP2PKHOutputs(1, combinedAmount),
+)
+
+// Mine child tx (parent now fully spent)
+td.MineAndWait(t, 1)
+
+// Mine retention period blocks to trigger deletion
+// With retention=1, mine 1 more block
+td.MineAndWait(t, 1)
+
+// Now parent TX should be deleted
+_, err := td.UtxoStore.Get(td.Ctx, parentTxHash)
+// err != nil means TX was deleted
+```
+
 ## Multi-Database Backend Testing
 
 ### IMPORTANT: Database Backend Requirements
@@ -1076,6 +1133,57 @@ assert.Len(t, slice, expectedLength)
 - Use SharedTestLock to prevent concurrent test issues
 - Each test should be independent
 - Don't rely on external state
+
+### 8. Height Variable Naming
+
+**CRITICAL: Naming height variables for clarity**
+
+When writing tests that track blockchain heights across multiple nodes or forks, use descriptive variable names that include:
+
+1. **The actual block number** - Makes it easy to verify the expected height
+2. **Node or fork identifier** - Clarifies which chain/node the height belongs to
+
+**Naming Pattern:**
+- Before fork: `height{N}Node{X}` - e.g., `height3Node1`, `height5Node2`
+- After fork: `height{N}Fork{X}` - e.g., `height6Fork1`, `height8Fork2`
+- After reorg: `height{N}Node{X}AfterReorg` - e.g., `height8Node1AfterReorg`
+
+**Example from reorg test:**
+```go
+// Before fork - mine to maturity on node1
+height3Node1, _, err := node1.BlockchainClient.GetBestHeightAndTime(node1.Ctx)
+require.Equal(t, uint32(3), height3Node1, "Should be at height 3 after mining to maturity")
+
+// Mine parent transaction on node1
+height4Node1, _, err := node1.BlockchainClient.GetBestHeightAndTime(node1.Ctx)
+require.Equal(t, uint32(4), height4Node1, "Node1 should be at height 4 after mining parent tx")
+
+// After nodes diverge - node1 creates fork1
+height6Fork1, _, err := node1.BlockchainClient.GetBestHeightAndTime(node1.Ctx)
+require.Equal(t, uint32(6), height6Fork1, "Node1 should be at height 6 after mining child tx")
+
+// Node2 creates fork2 (longer chain)
+height8Fork2, _, err := node2.BlockchainClient.GetBestHeightAndTime(node2.Ctx)
+require.Equal(t, uint32(8), height8Fork2, "Node2 should be at height 8 after extending chain")
+
+// After reconnecting - node1 reorgs to fork2
+height8Node1AfterReorg, _, err := node1.BlockchainClient.GetBestHeightAndTime(node1.Ctx)
+require.Equal(t, uint32(8), height8Node1AfterReorg, "Node1 should be at height 8 after reorg")
+```
+
+**Benefits:**
+- Self-documenting: Variable name tells you the expected height and which node/fork
+- Easier debugging: Clear which height variable failed in assertions
+- Better test readability: No need to track generic `height1`, `height2` variables
+- Prevents confusion: Clear distinction between competing forks
+
+**Anti-Pattern:**
+```go
+// DON'T: Generic names that don't indicate expected height or node
+height1, _, err := node1.BlockchainClient.GetBestHeightAndTime(node1.Ctx)
+height2, _, err := node1.BlockchainClient.GetBestHeightAndTime(node1.Ctx)
+height3, _, err := node2.BlockchainClient.GetBestHeightAndTime(node2.Ctx)
+```
 
 ## API Reference
 
