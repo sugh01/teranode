@@ -24,9 +24,9 @@ func init() {
 // while Node2 keeps all data (GlobalBlockHeightRetention=99999).
 //
 // Key Understanding:
-// - Parent TX is only deleted when it's COMPLETELY SPENT by child transactions
-// - Deletion occurs after retention period: if parent mined at block N, child spends it fully,
-//   and retention=1, then parent is deleted at block N+2 (current block + retention + 1)
+//   - Parent TX is only deleted when it's COMPLETELY SPENT by child transactions
+//   - Deletion occurs after retention period: if parent mined at block N, child spends it fully,
+//     and retention=1, then parent is deleted at block N+2 (current block + retention + 1)
 //
 // Test Scenario:
 // 1. Node1 mines to maturity (coinbaseMaturity=2, retention=1)
@@ -196,11 +196,11 @@ func TestReorgWithDifferentRetentionPolicies(t *testing.T) {
 	time.Sleep(2 * time.Second) // Wait for ports to be released
 	node2.ResetServiceManagerContext(t)
 	node2 = daemon.NewTestDaemon(t, daemon.TestOptions{
-		EnableRPC:       true,
-		EnableP2P:       false,
-		EnableValidator: true,
-		SettingsContext: "docker.host.teranode2.daemon",
-		FSMState:        blockchain.FSMStateRUNNING,
+		EnableRPC:         true,
+		EnableP2P:         false,
+		EnableValidator:   true,
+		SettingsContext:   "docker.host.teranode2.daemon",
+		FSMState:          blockchain.FSMStateRUNNING,
 		SkipRemoveDataDir: true,
 		SettingsOverrideFunc: func(s *settings.Settings) {
 			s.GlobalBlockHeightRetention = node2Retention
@@ -225,8 +225,8 @@ func TestReorgWithDifferentRetentionPolicies(t *testing.T) {
 
 	// Node1 creates child tx spending BOTH outputs of parent tx
 	childTx1 := node1.CreateTransactionWithOptions(t,
-		transactions.WithInput(parentTx, 0), // Spend output 0
-		transactions.WithInput(parentTx, 1), // Spend output 1 (FULLY SPENT)
+		transactions.WithInput(parentTx, 0),         // Spend output 0
+		transactions.WithInput(parentTx, 1),         // Spend output 1 (FULLY SPENT)
 		transactions.WithP2PKHOutputs(1, 2_800_000), // Combined minus fee
 	)
 	childTx1Hash := childTx1.TxIDChainHash()
@@ -235,8 +235,8 @@ func TestReorgWithDifferentRetentionPolicies(t *testing.T) {
 	// Node2 creates a DIFFERENT child tx also spending BOTH outputs
 	// (This creates the competing chain scenario)
 	childTx2 := node2.CreateTransactionWithOptions(t,
-		transactions.WithInput(parentTx, 0), // Spend output 0
-		transactions.WithInput(parentTx, 1), // Spend output 1 (FULLY SPENT)
+		transactions.WithInput(parentTx, 0),         // Spend output 0
+		transactions.WithInput(parentTx, 1),         // Spend output 1 (FULLY SPENT)
 		transactions.WithP2PKHOutputs(1, 2_900_000), // Different amount for different tx
 	)
 	childTx2Hash := childTx2.TxIDChainHash()
@@ -355,11 +355,11 @@ func TestReorgWithDifferentRetentionPolicies(t *testing.T) {
 	time.Sleep(2 * time.Second) // Wait for ports to be released
 	node2.ResetServiceManagerContext(t)
 	node2 = daemon.NewTestDaemon(t, daemon.TestOptions{
-		EnableRPC:       true,
-		EnableP2P:       true,
-		EnableValidator: true,
-		SettingsContext: "docker.host.teranode2.daemon",
-		FSMState:        blockchain.FSMStateRUNNING,
+		EnableRPC:         true,
+		EnableP2P:         true,
+		EnableValidator:   true,
+		SettingsContext:   "docker.host.teranode2.daemon",
+		FSMState:          blockchain.FSMStateRUNNING,
 		SkipRemoveDataDir: true,
 		SettingsOverrideFunc: func(s *settings.Settings) {
 			// s.GlobalBlockHeightRetention = node2Retention
