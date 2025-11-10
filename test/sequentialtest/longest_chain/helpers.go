@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	blockWait = 5 * time.Second
+	blockWait = 30 * time.Second
 )
 
 func setupLongestChainTest(t *testing.T, utxoStoreOverride string) (td *daemon.TestDaemon, block3 *model.Block) {

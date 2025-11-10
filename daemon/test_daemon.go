@@ -757,7 +757,7 @@ func (td *TestDaemon) VerifyOnLongestChainInUtxoStore(t *testing.T, tx *bt.Tx) {
 func (td *TestDaemon) VerifyNotOnLongestChainInUtxoStore(t *testing.T, tx *bt.Tx) {
 	readTx, err := td.UtxoStore.Get(td.Ctx, tx.TxIDChainHash(), fields.UnminedSince)
 	require.NoError(t, err, "Failed to get transaction %s", tx.String())
-	assert.Greater(t, readTx.UnminedSince, uint32(0), "Expected transaction %s to be on the longest chain", tx.TxIDChainHash().String())
+	assert.Greater(t, readTx.UnminedSince, uint32(0), "Expected transaction %s to be not on the longest chain", tx.TxIDChainHash().String())
 }
 
 // VerifyNotInUtxoStore verifies that the transaction does not exist in the UTXO store.
@@ -1273,6 +1273,13 @@ finished:
 }
 
 func (td *TestDaemon) WaitForBlockStateChange(t *testing.T, expectedBlock *model.Block, timeout time.Duration) {
+	// First check if the expected block is already the current best block
+	state, err := td.BlockAssemblyClient.GetBlockAssemblyState(td.Ctx)
+	if err == nil && state.CurrentHash == expectedBlock.Header.Hash().String() {
+		t.Logf("Block %s (height %d) is already the current best block", expectedBlock.Header.Hash().String(), expectedBlock.Height)
+		return
+	}
+
 	stateChangeCh := make(chan blockassembly.BestBlockInfo)
 	td.BlockAssembler.SetStateChangeCh(stateChangeCh)
 
@@ -1290,6 +1297,7 @@ func (td *TestDaemon) WaitForBlockStateChange(t *testing.T, expectedBlock *model
 			t.Fatalf("Timeout waiting for block assembly to reach block %s", expectedBlock.Header.Hash().String())
 		case bestBlockInfo := <-stateChangeCh:
 			t.Logf("Received BestBlockInfo: Height=%d, Hash=%s", bestBlockInfo.Height, bestBlockInfo.Header.Hash().String())
+			t.Logf("Expected block: Height=%d, Hash=%s", expectedBlock.Height, expectedBlock.Header.Hash().String())
 			if bestBlockInfo.Header.Hash().IsEqual(expectedBlock.Header.Hash()) {
 				return
 			}
