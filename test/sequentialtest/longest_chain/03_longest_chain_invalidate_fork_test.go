@@ -41,6 +41,8 @@ func testLongestChainInvalidateFork(t *testing.T, utxoStore string) {
 	childTx1 := td.CreateTransactionWithOptions(t, transactions.WithInput(parentTxWith3Outputs, 0), transactions.WithP2PKHOutputs(1, 100000) )
 	childTx2 := td.CreateTransactionWithOptions(t, transactions.WithInput(parentTxWith3Outputs, 1), transactions.WithP2PKHOutputs(1, 100000) )
 	childTx3 := td.CreateTransactionWithOptions(t, transactions.WithInput(parentTxWith3Outputs, 2), transactions.WithP2PKHOutputs(1, 100000) )
+	// create a double spend of tx3
+	childTx3DS := td.CreateTransactionWithOptions(t, transactions.WithInput(parentTxWith3Outputs, 2), transactions.WithP2PKHOutputs(2, 50000) )
 
 	require.NoError(t, td.PropagationClient.ProcessTransaction(td.Ctx, childTx1))
 	require.NoError(t, td.PropagationClient.ProcessTransaction(td.Ctx, childTx2))
@@ -98,9 +100,6 @@ func testLongestChainInvalidateFork(t *testing.T, utxoStore string) {
 	td.VerifyOnLongestChainInUtxoStore(t, childTx1)
 	td.VerifyOnLongestChainInUtxoStore(t, childTx2)
 	td.VerifyNotOnLongestChainInUtxoStore(t, childTx3)
-
-	// create a double spend of tx3
-	childTx3DS := td.CreateTransactionWithOptions(t, transactions.WithInput(parentTxWith3Outputs, 2), transactions.WithP2PKHOutputs(2, 50000) )
 
 	// create a new block on 4a with tx3 in it
 	_, block5a := td.CreateTestBlock(t, block4a, 6001, childTx3DS)
