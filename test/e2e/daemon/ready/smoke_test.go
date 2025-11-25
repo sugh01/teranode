@@ -626,7 +626,7 @@ func TestDuplicateTransactionAfterMining(t *testing.T) {
 		context.Background(),
 		"TestDuplicateTransactionAfterMining",
 	)
-	
+
 	defer func() {
 		endSpan(err)
 		td.Stop(t, true)
