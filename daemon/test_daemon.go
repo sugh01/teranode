@@ -99,7 +99,7 @@ type TestOptions struct {
 	FSMState                blockchain.FSMStateType
 	// UTXOStoreType specifies which UTXO store backend to use ("aerospike", "postgres")
 	// If empty, defaults to "aerospike"
-	UTXOStoreType           string
+	UTXOStoreType string
 }
 
 // JSONError represents a JSON error response from the RPC server.

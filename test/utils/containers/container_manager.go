@@ -63,7 +63,7 @@ func (cm *ContainerManager) Initialize(ctx context.Context) (*url.URL, error) {
 	case UTXOStoreSQLite:
 		return cm.initializeSQLite()
 	default:
-		return nil, fmt.Errorf("unsupported UTXO store type: %s", cm.storeType)
+		return nil, errors.NewInvalidArgumentError("unsupported UTXO store type: %s", cm.storeType)
 	}
 }
 
@@ -73,7 +73,7 @@ func (cm *ContainerManager) initializeAerospike(ctx context.Context) (*url.URL, 
 
 	container, err := aerospike2.RunContainer(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to start Aerospike container: %w", err)
+		return nil, errors.NewExternalError("failed to start Aerospike container: %v", err)
 	}
 
 	cm.cleanupFunc = func() error {
@@ -84,18 +84,18 @@ func (cm *ContainerManager) initializeAerospike(ctx context.Context) (*url.URL, 
 
 	host, err := container.Host(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get Aerospike host: %w", err)
+		return nil, errors.NewExternalError("failed to get Aerospike host: %v", err)
 	}
 
 	port, err := container.ServicePort(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get Aerospike port: %w", err)
+		return nil, errors.NewExternalError("failed to get Aerospike port: %v", err)
 	}
 
 	// Create raw client for cleanup operations
 	client, aeroErr := uaerospike.NewClient(host, port)
 	if aeroErr != nil {
-		return nil, fmt.Errorf("failed to create Aerospike client: %w", aeroErr)
+		return nil, errors.NewExternalError("failed to create Aerospike client: %v", aeroErr)
 	}
 	cm.aerospikeClient = client
 
@@ -105,7 +105,7 @@ func (cm *ContainerManager) initializeAerospike(ctx context.Context) (*url.URL, 
 
 	parsedURL, err := url.Parse(cm.containerURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse Aerospike URL: %w", err)
+		return nil, errors.NewExternalError("failed to parse Aerospike URL: %v", err)
 	}
 
 	return parsedURL, nil
@@ -149,14 +149,14 @@ func (cm *ContainerManager) initializePostgres(ctx context.Context) (*url.URL, e
 
 	// If all attempts failed, return the last error
 	if err != nil {
-		return nil, fmt.Errorf("failed to start PostgreSQL container after 3 attempts: %w", err)
+		return nil, errors.NewExternalError("failed to start PostgreSQL container after 3 attempts: %v", err)
 	}
 
 	cm.postgresContainer = postgresC
 
 	connStr, err := postgresC.ConnectionString(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get PostgreSQL connection string: %w", err)
+		return nil, errors.NewExternalError("failed to get PostgreSQL connection string: %v", err)
 	}
 
 	// Ensure SSL is disabled in the connection string
@@ -171,7 +171,7 @@ func (cm *ContainerManager) initializePostgres(ctx context.Context) (*url.URL, e
 	// Add a database validation step to ensure PostgreSQL is truly ready
 	if err := cm.validateDatabaseConnection(connStr, 5); err != nil {
 		_ = postgresC.Terminate(ctx) // Clean up container if validation fails
-		return nil, fmt.Errorf("database validation failed: %w", err)
+		return nil, errors.NewExternalError("database validation failed: %v", err)
 	}
 
 	cm.cleanupFunc = func() error {
@@ -184,7 +184,7 @@ func (cm *ContainerManager) initializePostgres(ctx context.Context) (*url.URL, e
 
 	parsedURL, err := url.Parse(connStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse PostgreSQL URL: %w", err)
+		return nil, errors.NewExternalError("failed to parse PostgreSQL URL: %v", err)
 	}
 
 	return parsedURL, nil
@@ -243,7 +243,7 @@ func (cm *ContainerManager) initializeSQLite() (*url.URL, error) {
 
 	parsedURL, err := url.Parse(cm.containerURL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse SQLite URL: %w", err)
+		return nil, errors.NewExternalError("failed to parse SQLite URL: %v", err)
 	}
 
 	return parsedURL, nil
