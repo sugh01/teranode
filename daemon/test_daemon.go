@@ -328,6 +328,13 @@ func NewTestDaemon(t *testing.T, opts TestOptions) *TestDaemon {
 		utxoStoreURL, err := containerManager.Initialize(ctx)
 		require.NoError(t, err, "Failed to initialize container")
 
+		// Register cleanup immediately to prevent resource leak if daemon initialization fails
+		t.Cleanup(func() {
+			if containerManager != nil {
+				_ = containerManager.Cleanup()
+			}
+		})
+
 		// Override the UTXO store URL in settings
 		appSettings.UtxoStore.UtxoStore = utxoStoreURL
 
