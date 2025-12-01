@@ -154,6 +154,13 @@ func (cm *ContainerManager) initializePostgres(ctx context.Context) (*url.URL, e
 
 	cm.postgresContainer = postgresC
 
+	// Set cleanup function immediately after container assignment to ensure cleanup on all error paths
+	cm.cleanupFunc = func() error {
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		return postgresC.Terminate(cleanupCtx)
+	}
+
 	connStr, err := postgresC.ConnectionString(ctx)
 	if err != nil {
 		return nil, errors.NewExternalError("failed to get PostgreSQL connection string: %v", err)
@@ -170,14 +177,7 @@ func (cm *ContainerManager) initializePostgres(ctx context.Context) (*url.URL, e
 
 	// Add a database validation step to ensure PostgreSQL is truly ready
 	if err := cm.validateDatabaseConnection(connStr, 5); err != nil {
-		_ = postgresC.Terminate(ctx) // Clean up container if validation fails
 		return nil, errors.NewExternalError("database validation failed: %v", err)
-	}
-
-	cm.cleanupFunc = func() error {
-		cleanupCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		return postgresC.Terminate(cleanupCtx)
 	}
 
 	cm.containerURL = connStr
