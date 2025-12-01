@@ -72,7 +72,7 @@ func TestMyScenario(t *testing.T) {
 ### IMPORTANT: Database Backend Requirements
 
 All tests MUST be tested with multiple database backends to ensure compatibility:
-- **SQLite** (in-memory, for fast tests)
+
 - **PostgreSQL** (using testcontainers)
 - **Aerospike** (using testcontainers)
 
@@ -102,7 +102,7 @@ func TestMyFeature(t *testing.T) {
 		EnableRPC:       true,
 		EnableValidator: true,
 		SettingsContext: "dev.system.test",
-		UTXOStoreType:   "aerospike", // "aerospike", "postgres", or "sqlite"
+		UTXOStoreType:   "aerospike", // "aerospike", "postgres"
 	})
 	defer td.Stop(t)
 
@@ -144,16 +144,6 @@ func TestMyFeaturePostgres(t *testing.T) {
 	})
 }
 
-// Test with SQLite (fastest, good for CI)
-func TestMyFeatureSQLite(t *testing.T) {
-	t.Run("scenario1", func(t *testing.T) {
-		testScenario1(t, "sqlite")
-	})
-	t.Run("scenario2", func(t *testing.T) {
-		testScenario2(t, "sqlite")
-	})
-}
-
 // Shared test implementation
 func testScenario1(t *testing.T, storeType string) {
 	SharedTestLock.Lock()
@@ -178,7 +168,6 @@ func testScenario1(t *testing.T, storeType string) {
 
 - `"aerospike"` - Aerospike container (production-like, recommended)
 - `"postgres"` - PostgreSQL container (production-like)
-- `"sqlite"` - SQLite in-memory (fastest, good for CI)
 - `""` (empty) - No automatic container (uses default settings)
 
 #### Benefits of Unified Approach
@@ -220,12 +209,13 @@ func TestMyFeatureAerospike(t *testing.T) {
 	// ...
 }
 ```
+
 </details>
 
 ### Best Practices for Multi-Database Testing
 
 1. **Use UTXOStoreType option** - Always prefer the unified container management approach
-2. **Test all three backends** - Aerospike for production parity, SQLite for speed, PostgreSQL for compatibility
+2. **Test with two store types** - Aerospike and PostgreSQL
 3. **Use shared test functions** - Write test logic once, parameterize with `storeType`
 4. **Aerospike is default** - Most tests should use Aerospike as it's closest to production
 5. **Use subtests** - Organize scenarios with `t.Run()` for better test output
