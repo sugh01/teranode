@@ -23,7 +23,7 @@ func TestBlockSubsidy(t *testing.T) {
 	td := daemon.NewTestDaemon(t, daemon.TestOptions{
 		EnableRPC:       true,
 		EnableValidator: true,
-		UTXOStoreType: "aerospike",
+		UTXOStoreType:   "aerospike",
 		SettingsOverrideFunc: test.ComposeSettings(
 			test.SystemTestSettings(),
 		),

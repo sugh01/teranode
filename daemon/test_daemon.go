@@ -259,10 +259,10 @@ func NewTestDaemon(t *testing.T, opts TestOptions) *TestDaemon {
 	testName := strings.ReplaceAll(t.Name(), "/", "_")
 	appSettings.ClientName = testName
 	path := filepath.Join("data")
-	
+
 	// path := filepath.Join("data", fmt.Sprintf("test_%s_%d", testName, time.Now().UnixNano()))
 
-	if !opts.SkipRemoveDataDir && opts.SkipRemoveDataDir == false{
+	if !opts.SkipRemoveDataDir && opts.SkipRemoveDataDir == false {
 		absPath, err := filepath.Abs(path)
 		require.NoError(t, err)
 

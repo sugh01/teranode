@@ -203,7 +203,7 @@ func TestTDRestart(t *testing.T) {
 		EnableRPC:       true,
 		EnableP2P:       false,
 		EnableValidator: true,
-		UTXOStoreType: "aerospike",
+		UTXOStoreType:   "aerospike",
 		SettingsOverrideFunc: test.ComposeSettings(
 			test.SystemTestSettings(),
 		),
@@ -227,7 +227,7 @@ func TestTDRestart(t *testing.T) {
 		EnableP2P:         false,
 		EnableValidator:   true,
 		SkipRemoveDataDir: true, // we are re-starting so don't delete data dir
-		UTXOStoreType: "aerospike",
+		UTXOStoreType:     "aerospike",
 		SettingsOverrideFunc: test.ComposeSettings(
 			test.SystemTestSettings(),
 		),
@@ -353,7 +353,7 @@ func TestDynamicSubtreeSize(t *testing.T) {
 
 func TestInvalidateBlock(t *testing.T) {
 	node1 := daemon.NewTestDaemon(t, daemon.TestOptions{
-		EnableRPC: true,
+		EnableRPC:     true,
 		UTXOStoreType: "aerospike",
 		SettingsOverrideFunc: test.ComposeSettings(
 			test.SystemTestSettings(),

@@ -9,7 +9,6 @@ import (
 	"github.com/bsv-blockchain/go-bt/v2/unlocker"
 	bec "github.com/bsv-blockchain/go-sdk/primitives/ec"
 	"github.com/bsv-blockchain/teranode/daemon"
-	"github.com/bsv-blockchain/teranode/test"
 	"github.com/stretchr/testify/require"
 )
 

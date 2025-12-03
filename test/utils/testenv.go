@@ -49,8 +49,8 @@ type TeranodeTestEnv struct {
 }
 
 type TeranodeTestClient struct {
-	Name             string
-	BlockchainClient bc.ClientI
+	Name                string
+	BlockchainClient    bc.ClientI
 	BlockassemblyClient ba.Client
 	PropagationClient   *propagation.Client
 	ClientBlockstore    *bhttp.HTTPStore

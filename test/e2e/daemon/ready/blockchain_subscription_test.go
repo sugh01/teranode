@@ -15,8 +15,8 @@ func TestBlockchainSubscriptionReconnection(t *testing.T) {
 	defer SharedTestLock.Unlock()
 
 	node := daemon.NewTestDaemon(t, daemon.TestOptions{
-		EnableRPC: true,
-		EnableP2P: true,
+		EnableRPC:     true,
+		EnableP2P:     true,
 		UTXOStoreType: "aerospike",
 		SettingsOverrideFunc: test.ComposeSettings(
 			test.SystemTestSettings(),

@@ -364,16 +364,16 @@ func TestStore_TwoPhaseCommit(t *testing.T) {
 			}()
 
 			td = daemon.NewTestDaemon(t, daemon.TestOptions{
-				EnableRPC:       true,
+				EnableRPC: true,
 				SettingsOverrideFunc: testutil.ComposeSettings(
-				testutil.SystemTestSettings(),
-				func(s *settings.Settings) {
-				s.Validator.UseLocalValidator = true
-				s.TracingEnabled = true
-				s.TracingSampleRate = 1.0
-			},
-		),
-		})
+					testutil.SystemTestSettings(),
+					func(s *settings.Settings) {
+						s.Validator.UseLocalValidator = true
+						s.TracingEnabled = true
+						s.TracingSampleRate = 1.0
+					},
+				),
+			})
 		}()
 
 		// If successful, break out of retry loop

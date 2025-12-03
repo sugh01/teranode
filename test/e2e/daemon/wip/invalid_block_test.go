@@ -14,9 +14,10 @@ import (
 	"github.com/bsv-blockchain/teranode/daemon"
 	"github.com/bsv-blockchain/teranode/errors"
 	"github.com/bsv-blockchain/teranode/settings"
-	"github.com/bsv-blockchain/teranode/test"
+	testSettings "github.com/bsv-blockchain/teranode/test"
 	"github.com/bsv-blockchain/teranode/test/testcontainers"
 	helper "github.com/bsv-blockchain/teranode/test/utils"
+	"github.com/bsv-blockchain/teranode/util/test"
 	"github.com/bsv-blockchain/teranode/util/tracing"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -365,8 +366,11 @@ func TestInvalidBlockWithContainer(t *testing.T) {
 
 func TestOrphanTxWithSingleNode(t *testing.T) {
 	node1 := daemon.NewTestDaemon(t, daemon.TestOptions{
-		EnableRPC:            true,
-		SettingsOverrideFunc: test.SystemTestSettings(),
+		EnableRPC:     true,
+		UTXOStoreType: "aerospike",
+		SettingsOverrideFunc: testSettings.ComposeSettings(
+			testSettings.SystemTestSettings(),
+		),
 	})
 	// is stopped manually
 
@@ -409,9 +413,11 @@ func TestOrphanTxWithSingleNode(t *testing.T) {
 	node1.Stop(t)
 	node1.ResetServiceManagerContext(t)
 	node1 = daemon.NewTestDaemon(t, daemon.TestOptions{
-		EnableRPC:            true,
-		SkipRemoveDataDir:    true, // we are re-starting so don't delete data dir
-		SettingsOverrideFunc: test.SystemTestSettings(),
+		EnableRPC:         true,
+		SkipRemoveDataDir: true, // we are re-starting so don't delete data dir
+		SettingsOverrideFunc: testSettings.ComposeSettings(
+			testSettings.SystemTestSettings(),
+		),
 	})
 
 	defer node1.Stop(t)
