@@ -9,6 +9,7 @@ import (
 
 	"github.com/bsv-blockchain/teranode/daemon"
 	"github.com/bsv-blockchain/teranode/settings"
+	"github.com/bsv-blockchain/teranode/test"
 	testkafka "github.com/bsv-blockchain/teranode/test/longtest/util/kafka"
 	kafkautil "github.com/bsv-blockchain/teranode/util/kafka"
 	"github.com/stretchr/testify/assert"
@@ -31,9 +32,10 @@ func TestKafkaTLSConnection(t *testing.T) {
 		time.Sleep(5 * time.Second)
 
 		td := daemon.NewTestDaemon(t, daemon.TestOptions{
-			EnableRPC:       true,
-			SettingsContext: "dev.system.test",
-			SettingsOverrideFunc: func(settings *settings.Settings) {
+			EnableRPC: true,
+			SettingsOverrideFunc: test.ComposeSettings(
+				test.SystemTestSettings(),
+				func(settings *settings.Settings) {
 				settings.Kafka.EnableTLS = true
 				settings.Kafka.TLSSkipVerify = true
 
@@ -49,6 +51,7 @@ func TestKafkaTLSConnection(t *testing.T) {
 				settings.Kafka.SubtreesConfig.Scheme = "memory"
 				settings.Kafka.TxMetaConfig.Scheme = "memory"
 			},
+		),
 		})
 
 		defer td.Stop(t)
@@ -82,24 +85,26 @@ func TestKafkaTLSWithCertificateVerification(t *testing.T) {
 
 		t.Run("With Skip Verification", func(t *testing.T) {
 			td := daemon.NewTestDaemon(t, daemon.TestOptions{
-				EnableRPC:       true,
-				SettingsContext: "dev.system.test",
-				SettingsOverrideFunc: func(settings *settings.Settings) {
-					settings.Kafka.EnableTLS = true
-					settings.Kafka.TLSSkipVerify = true
+				EnableRPC: true,
+				SettingsOverrideFunc: test.ComposeSettings(
+					test.SystemTestSettings(),
+					func(settings *settings.Settings) {
+						settings.Kafka.EnableTLS = true
+						settings.Kafka.TLSSkipVerify = true
 
-					kafkaBrokers := kafkaContainer.GetBrokerAddresses()
-					if len(kafkaBrokers) > 0 {
-						settings.Kafka.Hosts = kafkaBrokers[0]
-					}
+						kafkaBrokers := kafkaContainer.GetBrokerAddresses()
+						if len(kafkaBrokers) > 0 {
+							settings.Kafka.Hosts = kafkaBrokers[0]
+						}
 
-					settings.Kafka.BlocksConfig.Scheme = "memory"
-					settings.Kafka.BlocksFinalConfig.Scheme = "memory"
-					settings.Kafka.LegacyInvConfig.Scheme = "memory"
-					settings.Kafka.RejectedTxConfig.Scheme = "memory"
-					settings.Kafka.SubtreesConfig.Scheme = "memory"
-					settings.Kafka.TxMetaConfig.Scheme = "memory"
-				},
+						settings.Kafka.BlocksConfig.Scheme = "memory"
+						settings.Kafka.BlocksFinalConfig.Scheme = "memory"
+						settings.Kafka.LegacyInvConfig.Scheme = "memory"
+						settings.Kafka.RejectedTxConfig.Scheme = "memory"
+						settings.Kafka.SubtreesConfig.Scheme = "memory"
+						settings.Kafka.TxMetaConfig.Scheme = "memory"
+					},
+				),
 			})
 
 			defer td.Stop(t)
@@ -115,24 +120,26 @@ func TestKafkaTLSWithCertificateVerification(t *testing.T) {
 
 		t.Run("Without Skip Verification", func(t *testing.T) {
 			td := daemon.NewTestDaemon(t, daemon.TestOptions{
-				EnableRPC:       true,
-				SettingsContext: "dev.system.test",
-				SettingsOverrideFunc: func(settings *settings.Settings) {
-					settings.Kafka.EnableTLS = true
-					settings.Kafka.TLSSkipVerify = false
+				EnableRPC: true,
+				SettingsOverrideFunc: test.ComposeSettings(
+					test.SystemTestSettings(),
+					func(settings *settings.Settings) {
+						settings.Kafka.EnableTLS = true
+						settings.Kafka.TLSSkipVerify = false
 
-					kafkaBrokers := kafkaContainer.GetBrokerAddresses()
-					if len(kafkaBrokers) > 0 {
-						settings.Kafka.Hosts = kafkaBrokers[0]
-					}
+						kafkaBrokers := kafkaContainer.GetBrokerAddresses()
+						if len(kafkaBrokers) > 0 {
+							settings.Kafka.Hosts = kafkaBrokers[0]
+						}
 
-					settings.Kafka.BlocksConfig.Scheme = "memory"
-					settings.Kafka.BlocksFinalConfig.Scheme = "memory"
-					settings.Kafka.LegacyInvConfig.Scheme = "memory"
-					settings.Kafka.RejectedTxConfig.Scheme = "memory"
-					settings.Kafka.SubtreesConfig.Scheme = "memory"
-					settings.Kafka.TxMetaConfig.Scheme = "memory"
-				},
+						settings.Kafka.BlocksConfig.Scheme = "memory"
+						settings.Kafka.BlocksFinalConfig.Scheme = "memory"
+						settings.Kafka.LegacyInvConfig.Scheme = "memory"
+						settings.Kafka.RejectedTxConfig.Scheme = "memory"
+						settings.Kafka.SubtreesConfig.Scheme = "memory"
+						settings.Kafka.TxMetaConfig.Scheme = "memory"
+					},
+				),
 			})
 
 			defer td.Stop(t)
@@ -204,24 +211,26 @@ func TestKafkaTLSConnectionFailure(t *testing.T) {
 		time.Sleep(5 * time.Second)
 
 		td := daemon.NewTestDaemon(t, daemon.TestOptions{
-			EnableRPC:       true,
-			SettingsContext: "dev.system.test",
-			SettingsOverrideFunc: func(settings *settings.Settings) {
-				settings.Kafka.EnableTLS = true
-				settings.Kafka.TLSSkipVerify = false
+			EnableRPC: true,
+			SettingsOverrideFunc: test.ComposeSettings(
+				test.SystemTestSettings(),
+				func(settings *settings.Settings) {
+					settings.Kafka.EnableTLS = true
+					settings.Kafka.TLSSkipVerify = false
 
-				kafkaBrokers := kafkaContainer.GetBrokerAddresses()
-				if len(kafkaBrokers) > 0 {
-					settings.Kafka.Hosts = kafkaBrokers[0]
-				}
+					kafkaBrokers := kafkaContainer.GetBrokerAddresses()
+					if len(kafkaBrokers) > 0 {
+						settings.Kafka.Hosts = kafkaBrokers[0]
+					}
 
-				settings.Kafka.BlocksConfig.Scheme = "memory"
-				settings.Kafka.BlocksFinalConfig.Scheme = "memory"
-				settings.Kafka.LegacyInvConfig.Scheme = "memory"
-				settings.Kafka.RejectedTxConfig.Scheme = "memory"
-				settings.Kafka.SubtreesConfig.Scheme = "memory"
-				settings.Kafka.TxMetaConfig.Scheme = "memory"
-			},
+					settings.Kafka.BlocksConfig.Scheme = "memory"
+					settings.Kafka.BlocksFinalConfig.Scheme = "memory"
+					settings.Kafka.LegacyInvConfig.Scheme = "memory"
+					settings.Kafka.RejectedTxConfig.Scheme = "memory"
+					settings.Kafka.SubtreesConfig.Scheme = "memory"
+					settings.Kafka.TxMetaConfig.Scheme = "memory"
+				},
+			),
 		})
 
 		defer td.Stop(t)
@@ -265,9 +274,10 @@ func TestKafkaTLSIntegrationWithServices(t *testing.T) {
 		time.Sleep(5 * time.Second)
 
 		td := daemon.NewTestDaemon(t, daemon.TestOptions{
-			EnableRPC:       true,
-			SettingsContext: "dev.system.test",
-			SettingsOverrideFunc: func(settings *settings.Settings) {
+			EnableRPC: true,
+			SettingsOverrideFunc: test.ComposeSettings(
+				test.SystemTestSettings(),
+				func(settings *settings.Settings) {
 				settings.Kafka.EnableTLS = true
 				settings.Kafka.TLSSkipVerify = true
 
@@ -283,6 +293,7 @@ func TestKafkaTLSIntegrationWithServices(t *testing.T) {
 				settings.Kafka.SubtreesConfig.Scheme = "memory"
 				settings.Kafka.TxMetaConfig.Scheme = "memory"
 			},
+		),
 		})
 
 		defer td.Stop(t)
@@ -338,9 +349,10 @@ func TestKafkaTLSPerformance(t *testing.T) {
 		time.Sleep(5 * time.Second)
 
 		td := daemon.NewTestDaemon(t, daemon.TestOptions{
-			EnableRPC:       true,
-			SettingsContext: "dev.system.test",
-			SettingsOverrideFunc: func(settings *settings.Settings) {
+			EnableRPC: true,
+			SettingsOverrideFunc: test.ComposeSettings(
+				test.SystemTestSettings(),
+				func(settings *settings.Settings) {
 				settings.Kafka.EnableTLS = true
 				settings.Kafka.TLSSkipVerify = true
 
@@ -356,6 +368,7 @@ func TestKafkaTLSPerformance(t *testing.T) {
 				settings.Kafka.SubtreesConfig.Scheme = "memory"
 				settings.Kafka.TxMetaConfig.Scheme = "memory"
 			},
+		),
 		})
 
 		defer td.Stop(t)
@@ -387,9 +400,10 @@ func TestKafkaTLSReconnection(t *testing.T) {
 		time.Sleep(5 * time.Second)
 
 		td := daemon.NewTestDaemon(t, daemon.TestOptions{
-			EnableRPC:       true,
-			SettingsContext: "dev.system.test",
-			SettingsOverrideFunc: func(settings *settings.Settings) {
+			EnableRPC: true,
+			SettingsOverrideFunc: test.ComposeSettings(
+				test.SystemTestSettings(),
+				func(settings *settings.Settings) {
 				settings.Kafka.EnableTLS = true
 				settings.Kafka.TLSSkipVerify = true
 
@@ -405,6 +419,7 @@ func TestKafkaTLSReconnection(t *testing.T) {
 				settings.Kafka.SubtreesConfig.Scheme = "memory"
 				settings.Kafka.TxMetaConfig.Scheme = "memory"
 			},
+		),
 		})
 
 		block1 := td.MineAndWait(t, 1)
