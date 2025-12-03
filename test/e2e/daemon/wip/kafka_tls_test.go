@@ -36,22 +36,22 @@ func TestKafkaTLSConnection(t *testing.T) {
 			SettingsOverrideFunc: test.ComposeSettings(
 				test.SystemTestSettings(),
 				func(settings *settings.Settings) {
-				settings.Kafka.EnableTLS = true
-				settings.Kafka.TLSSkipVerify = true
+					settings.Kafka.EnableTLS = true
+					settings.Kafka.TLSSkipVerify = true
 
-				kafkaBrokers := kafkaContainer.GetBrokerAddresses()
-				if len(kafkaBrokers) > 0 {
-					settings.Kafka.Hosts = kafkaBrokers[0]
-				}
+					kafkaBrokers := kafkaContainer.GetBrokerAddresses()
+					if len(kafkaBrokers) > 0 {
+						settings.Kafka.Hosts = kafkaBrokers[0]
+					}
 
-				settings.Kafka.BlocksConfig.Scheme = "memory"
-				settings.Kafka.BlocksFinalConfig.Scheme = "memory"
-				settings.Kafka.LegacyInvConfig.Scheme = "memory"
-				settings.Kafka.RejectedTxConfig.Scheme = "memory"
-				settings.Kafka.SubtreesConfig.Scheme = "memory"
-				settings.Kafka.TxMetaConfig.Scheme = "memory"
-			},
-		),
+					settings.Kafka.BlocksConfig.Scheme = "memory"
+					settings.Kafka.BlocksFinalConfig.Scheme = "memory"
+					settings.Kafka.LegacyInvConfig.Scheme = "memory"
+					settings.Kafka.RejectedTxConfig.Scheme = "memory"
+					settings.Kafka.SubtreesConfig.Scheme = "memory"
+					settings.Kafka.TxMetaConfig.Scheme = "memory"
+				},
+			),
 		})
 
 		defer td.Stop(t)
@@ -278,22 +278,22 @@ func TestKafkaTLSIntegrationWithServices(t *testing.T) {
 			SettingsOverrideFunc: test.ComposeSettings(
 				test.SystemTestSettings(),
 				func(settings *settings.Settings) {
-				settings.Kafka.EnableTLS = true
-				settings.Kafka.TLSSkipVerify = true
+					settings.Kafka.EnableTLS = true
+					settings.Kafka.TLSSkipVerify = true
 
-				kafkaBrokers := kafkaContainer.GetBrokerAddresses()
-				if len(kafkaBrokers) > 0 {
-					settings.Kafka.Hosts = kafkaBrokers[0]
-				}
+					kafkaBrokers := kafkaContainer.GetBrokerAddresses()
+					if len(kafkaBrokers) > 0 {
+						settings.Kafka.Hosts = kafkaBrokers[0]
+					}
 
-				settings.Kafka.BlocksConfig.Scheme = "memory"
-				settings.Kafka.BlocksFinalConfig.Scheme = "memory"
-				settings.Kafka.LegacyInvConfig.Scheme = "memory"
-				settings.Kafka.RejectedTxConfig.Scheme = "memory"
-				settings.Kafka.SubtreesConfig.Scheme = "memory"
-				settings.Kafka.TxMetaConfig.Scheme = "memory"
-			},
-		),
+					settings.Kafka.BlocksConfig.Scheme = "memory"
+					settings.Kafka.BlocksFinalConfig.Scheme = "memory"
+					settings.Kafka.LegacyInvConfig.Scheme = "memory"
+					settings.Kafka.RejectedTxConfig.Scheme = "memory"
+					settings.Kafka.SubtreesConfig.Scheme = "memory"
+					settings.Kafka.TxMetaConfig.Scheme = "memory"
+				},
+			),
 		})
 
 		defer td.Stop(t)
@@ -353,22 +353,22 @@ func TestKafkaTLSPerformance(t *testing.T) {
 			SettingsOverrideFunc: test.ComposeSettings(
 				test.SystemTestSettings(),
 				func(settings *settings.Settings) {
-				settings.Kafka.EnableTLS = true
-				settings.Kafka.TLSSkipVerify = true
+					settings.Kafka.EnableTLS = true
+					settings.Kafka.TLSSkipVerify = true
 
-				kafkaBrokers := kafkaContainer.GetBrokerAddresses()
-				if len(kafkaBrokers) > 0 {
-					settings.Kafka.Hosts = kafkaBrokers[0]
-				}
+					kafkaBrokers := kafkaContainer.GetBrokerAddresses()
+					if len(kafkaBrokers) > 0 {
+						settings.Kafka.Hosts = kafkaBrokers[0]
+					}
 
-				settings.Kafka.BlocksConfig.Scheme = "memory"
-				settings.Kafka.BlocksFinalConfig.Scheme = "memory"
-				settings.Kafka.LegacyInvConfig.Scheme = "memory"
-				settings.Kafka.RejectedTxConfig.Scheme = "memory"
-				settings.Kafka.SubtreesConfig.Scheme = "memory"
-				settings.Kafka.TxMetaConfig.Scheme = "memory"
-			},
-		),
+					settings.Kafka.BlocksConfig.Scheme = "memory"
+					settings.Kafka.BlocksFinalConfig.Scheme = "memory"
+					settings.Kafka.LegacyInvConfig.Scheme = "memory"
+					settings.Kafka.RejectedTxConfig.Scheme = "memory"
+					settings.Kafka.SubtreesConfig.Scheme = "memory"
+					settings.Kafka.TxMetaConfig.Scheme = "memory"
+				},
+			),
 		})
 
 		defer td.Stop(t)
@@ -404,22 +404,22 @@ func TestKafkaTLSReconnection(t *testing.T) {
 			SettingsOverrideFunc: test.ComposeSettings(
 				test.SystemTestSettings(),
 				func(settings *settings.Settings) {
-				settings.Kafka.EnableTLS = true
-				settings.Kafka.TLSSkipVerify = true
+					settings.Kafka.EnableTLS = true
+					settings.Kafka.TLSSkipVerify = true
 
-				kafkaBrokers := kafkaContainer.GetBrokerAddresses()
-				if len(kafkaBrokers) > 0 {
-					settings.Kafka.Hosts = kafkaBrokers[0]
-				}
+					kafkaBrokers := kafkaContainer.GetBrokerAddresses()
+					if len(kafkaBrokers) > 0 {
+						settings.Kafka.Hosts = kafkaBrokers[0]
+					}
 
-				settings.Kafka.BlocksConfig.Scheme = "memory"
-				settings.Kafka.BlocksFinalConfig.Scheme = "memory"
-				settings.Kafka.LegacyInvConfig.Scheme = "memory"
-				settings.Kafka.RejectedTxConfig.Scheme = "memory"
-				settings.Kafka.SubtreesConfig.Scheme = "memory"
-				settings.Kafka.TxMetaConfig.Scheme = "memory"
-			},
-		),
+					settings.Kafka.BlocksConfig.Scheme = "memory"
+					settings.Kafka.BlocksFinalConfig.Scheme = "memory"
+					settings.Kafka.LegacyInvConfig.Scheme = "memory"
+					settings.Kafka.RejectedTxConfig.Scheme = "memory"
+					settings.Kafka.SubtreesConfig.Scheme = "memory"
+					settings.Kafka.TxMetaConfig.Scheme = "memory"
+				},
+			),
 		})
 
 		block1 := td.MineAndWait(t, 1)
