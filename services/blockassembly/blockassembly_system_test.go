@@ -636,8 +636,6 @@ func TestShouldFollowChainWithMoreChainwork(t *testing.T) {
 // This testcase tests TNA-3: Teranode must work on finding a difficult proof-of-work for its block
 // This testcase tests TNA-6: Teranode must express its acceptance of the block by working on creating the next block in the chain, using the hash of the accepted block as previous hash.
 func TestShouldAddSubtreesToLongerChain(t *testing.T) {
-	t.Skip("This test should pass")
-
 	_, ba, ctx, cancel, cleanup := setupTest(t)
 	defer cancel()
 	defer cleanup()
@@ -735,24 +733,44 @@ func TestShouldAddSubtreesToLongerChain(t *testing.T) {
 
 	t.Log("Waiting for transactions to be processed...")
 
+	// Wait for transactions to be processed by the subtree processor.
+	// Transactions must age for at least DoubleSpendWindow before being dequeued.
+	var s []*subtree.Subtree
+	require.Eventually(t, func() bool {
+		// Use internal method to get subtrees directly (gRPC client doesn't return SubtreeSlices)
+		_, subtrees, err := ba.blockAssembler.getMiningCandidate()
+		if err != nil {
+			return false
+		}
+
+		// Count transactions in subtrees
+		foundTxs := 0
+		for _, st := range subtrees {
+			for _, node := range st.Nodes {
+				if node.Hash.Equal(*testHash1) || node.Hash.Equal(*testHash2) || node.Hash.Equal(*testHash3) {
+					foundTxs++
+				}
+			}
+		}
+
+		if foundTxs == 3 {
+			s = subtrees
+			return true
+		}
+		return false
+	}, 5*time.Second, 100*time.Millisecond, "Timeout waiting for transactions to be processed")
+
 	// Get mining candidate with timeout context
 	t.Log("Getting mining candidate...")
-
-	var miningCandidate *model.MiningCandidate
 
 	baClient, err := NewClient(ctx, ulogger.TestLogger{}, ba.settings)
 	require.NoError(t, err)
 
+	var miningCandidate *model.MiningCandidate
+
 	// Get mining candidate with subtree hashes included
 	miningCandidate, mcErr := baClient.GetMiningCandidate(ctx, true)
 	require.NoError(t, mcErr)
-
-	// Get the block candidate which contains the actual subtrees
-	blockCandidate, err := baClient.GetBlockAssemblyBlockCandidate(ctx)
-	require.NoError(t, err)
-
-	// Get subtrees from the block candidate
-	s := blockCandidate.SubtreeSlices
 
 	// Verify the mining candidate is built on Chain A
 	prevHash, _ := chainhash.NewHash(miningCandidate.PreviousHash)
