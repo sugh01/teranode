@@ -146,7 +146,6 @@ func TestHealth(t *testing.T) {
 
 // TestCoinbaseSubsidyHeight verifies correct coinbase subsidy calculation at different heights.
 func Test_CoinbaseSubsidyHeight(t *testing.T) {
-	t.Skip("Skipping coinbase subsidy height test")
 	_, ba, ctx, cancel, cleanup := setupTest(t)
 
 	defer cancel()
@@ -156,8 +155,13 @@ func Test_CoinbaseSubsidyHeight(t *testing.T) {
 	baClient, err := NewClient(ctx, ulogger.TestLogger{}, ba.settings)
 	require.NoError(t, err)
 
+	// Get initial mining candidate and verify coinbase value
 	miningCandidate, err := baClient.GetMiningCandidate(ctx)
 	require.NoError(t, err, "Failed to get mining candidate")
+	t.Logf("Initial coinbase value at height %d: %d", miningCandidate.Height, miningCandidate.CoinbaseValue)
+
+	// Verify coinbase value is set (should be block subsidy for this height)
+	assert.Greater(t, miningCandidate.CoinbaseValue, uint64(0), "Coinbase value should be greater than 0")
 
 	coinbase, err := CreateCoinbaseTxCandidate(t, miningCandidate)
 	require.NoError(t, err, "Failed to create coinbase tx")
@@ -193,19 +197,24 @@ func Test_CoinbaseSubsidyHeight(t *testing.T) {
 	err = baClient.SubmitMiningSolution(ctx, &solution)
 	require.NoError(t, err, "Failed to submit mining solution")
 
-	h, m, _ := ba.blockchainClient.GetBestBlockHeader(ctx)
+	// Verify the block was added to the blockchain
+	h, m, err := ba.blockchainClient.GetBestBlockHeader(ctx)
+	require.NoError(t, err, "Failed to get best block header")
 	assert.NotNil(t, h, "Best block header should not be nil")
 	assert.NotNil(t, m, "Best block metadata should not be nil")
-	t.Logf("Best block header: %v", h)
+	t.Logf("Best block header after mining: %v at height %d", h, m.Height)
 
-	ba.blockAssembler.setBestBlockHeader(h, m.Height)
-	baBestBlockHeader, _ := ba.blockAssembler.CurrentBlock()
-	ba.blockAssembler.subtreeProcessor.InitCurrentBlockHeader(baBestBlockHeader)
-	mc, st, err := ba.blockAssembler.getMiningCandidate()
-	require.NoError(t, err, "Failed to get mining candidate")
-	assert.NotNil(t, mc, "Mining candidate should not be nil")
-	assert.NotNil(t, st, "Subtree should not be nil")
-	t.Logf("Coinbase: %v", mc.CoinbaseValue)
+	// Wait for block assembly to process the new block
+	time.Sleep(100 * time.Millisecond)
+
+	// Get a new mining candidate at the new height via the public API
+	newMiningCandidate, err := baClient.GetMiningCandidate(ctx)
+	require.NoError(t, err, "Failed to get new mining candidate")
+
+	t.Logf("New coinbase value at height %d: %d", newMiningCandidate.Height, newMiningCandidate.CoinbaseValue)
+
+	// Verify coinbase value is still valid at the new height
+	assert.Greater(t, newMiningCandidate.CoinbaseValue, uint64(0), "Coinbase value should be greater than 0 at new height")
 }
 
 // TestDifficultyAdjustment verifies the difficulty adjustment mechanism.
