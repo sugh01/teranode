@@ -122,12 +122,20 @@ func createTestServer(t *testing.T) *Server {
 	mockBanList.On("ListBanned").Return([]string{})
 	mockBanList.On("IsBanned", mock.Anything).Return(false)
 	mockBanList.On("Clear").Return()
+
+	// Create mock P2PClient for tests that need it
+	mockP2PClient := &MockServerP2PClient{}
+	// GetPeers returns empty list by default (method doesn't use mock.Called)
+	// GetID needs to be set up if used
+	mockP2PClient.On("GetID").Return(peer.ID("test-peer-id")).Maybe()
+
 	s := &Server{
 		logger:       logger,
 		settings:     settings,
 		peerRegistry: registry,
 		banManager:   NewPeerBanManager(context.Background(), nil, settings, registry),
 		banList:      mockBanList,
+		P2PClient:    mockP2PClient,
 	}
 
 	return s
