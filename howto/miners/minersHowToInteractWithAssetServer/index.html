@@ -1380,6 +1380,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#peer-management-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peer Management Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synchronization-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -6433,6 +6455,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#peer-management-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peer Management Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synchronization-endpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synchronization Endpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -6517,7 +6561,6 @@
 
 
 <h1 id="how-to-interact-with-the-asset-server">How to Interact with the Asset Server</h1>
-<p>Last Modified: 28-May-2025</p>
 <p>There are 2 primary ways to interact with the node, using the RPC Server, and using the Asset Server. This document will focus on the Asset Server. The Asset Server provides an HTTP API for interacting with the node. Below is a list of implemented endpoints with their parameters and return values.</p>
 <h2 id="teranode-asset-server-http-api">Teranode Asset Server HTTP API</h2>
 <p>The Teranode Asset Server provides the following HTTP endpoints organized by category. Unless otherwise specified, all endpoints are GET requests.</p>
@@ -7269,7 +7312,7 @@
 <li>
 <p>Parameters:</p>
 <ul>
-<li><code>query</code> (required): Search query (hash or block height)</li>
+<li><code>q</code> (required): Search query (hash or block height)</li>
 </ul>
 </li>
 <li>
@@ -7453,6 +7496,51 @@
 <span class="w">  </span><span class="p">}</span>
 <span class="p">]</span>
 </code></pre></div>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="peer-management-endpoints">Peer Management Endpoints</h3>
+<ul>
+<li>
+<p>GET <code>/api/v1/peers</code></p>
+<ul>
+<li>Description: Retrieves information about connected peers</li>
+<li>
+<p>Parameters:
+    None</p>
+</li>
+<li>
+<p>Returns: JSON array of peer information</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="synchronization-endpoints">Synchronization Endpoints</h3>
+<ul>
+<li>
+<p>GET <code>/api/v1/catchup/status</code></p>
+<ul>
+<li>Description: Returns current blockchain catchup/synchronization status</li>
+<li>
+<p>Parameters:
+    None</p>
+</li>
+<li>
+<p>Returns: JSON object with sync progress information</p>
+</li>
+</ul>
+</li>
+<li>
+<p>GET <code>/api/v1/service/heights</code></p>
+<ul>
+<li>Description: Returns block heights across different services</li>
+<li>
+<p>Parameters:
+    None</p>
+</li>
+<li>
+<p>Returns: JSON object with service height information</p>
 </li>
 </ul>
 </li>
