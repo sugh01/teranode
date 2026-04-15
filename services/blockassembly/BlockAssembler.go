@@ -411,15 +411,17 @@ func (b *BlockAssembler) reset(ctx context.Context, validateInputs ...bool) erro
 	// Mark moveBack transactions as unmined (set unmined_since)
 	//
 	// Division of Responsibility During Reorg:
-	// - Invalid blocks: BlockValidation handles via background job (unsetMined=true removes block_ids, sets unmined_since)
+	// - Invalid blocks: reset() handles HERE (BlockValidation also handles asynchronously, but
+	//   may race with loadUnminedTransactions for SQL/Postgres stores — do it here to be safe)
 	// - moveForward blocks (side→main): BlockValidation handles via background job (mined_set=false → processes with onLongestChain=true → clears unmined_since)
 	// - moveBack blocks (main→side): reset() handles HERE (sets unmined_since)
 	//
-	// Why moveBack needs explicit handling:
+	// Why moveBack (including invalid) needs explicit handling:
 	// - These blocks were on main chain (unmined_since=NULL, mined_set=true)
-	// - Reorg moved them to side chain
-	// - BlockValidation won't re-process them (mined_set still true, not in GetBlocksMinedNotSet queue)
-	// - No background job will update them
+	// - Reorg/invalidation moved them off the main chain
+	// - For non-invalid moveBack: BlockValidation won't re-process them (mined_set still true)
+	// - For invalid blocks: BlockValidation handles via BlockMinedUnset but this races with
+	//   loadUnminedTransactions; must set unmined_since HERE before loadUnminedTransactions runs
 	// - Must explicitly mark their transactions as unmined here
 	//
 	// Why we DON'T handle moveForward:
@@ -459,10 +461,16 @@ func (b *BlockAssembler) reset(ctx context.Context, validateInputs ...bool) erro
 		moveBackTxs := make([]chainhash.Hash, 0, len(moveBackBlocksWithMeta)*100)
 
 		for _, blockWithMeta := range moveBackBlocksWithMeta {
-			if blockWithMeta.meta.Invalid {
-				// Skip invalid blocks - BlockValidation already handled them via unsetMined=true
-				continue
-			}
+			// NOTE: We process invalid blocks too, not just regular moveBack blocks.
+			// Previously, invalid blocks were skipped with the assumption that BlockValidation
+			// would handle them asynchronously via BlockMinedUnset notification. However, for
+			// SQL/Postgres stores, the BlockValidation job races with loadUnminedTransactions:
+			// block assembly's reset() calls loadUnminedTransactions(fullScan=false) BEFORE
+			// BlockValidation's setTxMinedStatus(unsetMined=true) has a chance to set
+			// unmined_since on the txs. This causes txs from invalidated blocks to be missed.
+			// By processing invalid blocks here (calling MarkTransactionsOnLongestChain), we
+			// ensure unmined_since is set BEFORE loadUnminedTransactions runs, regardless of
+			// the BlockValidation background job's timing.
 
 			block := blockWithMeta.block
 			blockSubtrees, err := block.GetSubtrees(ctx, b.logger, b.subtreeStore, b.settings.Block.GetAndValidateSubtreesConcurrency)
