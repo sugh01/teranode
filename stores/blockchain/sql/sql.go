@@ -208,7 +208,7 @@ func New(logger ulogger.Logger, storeURL *url.URL, tSettings *settings.Settings)
 		s.backgroundDone = make(chan struct{})
 	}
 
-	err = s.insertGenesisTransaction(logger)
+	err = s.insertGenesisTransaction(logger, s.chainParams)
 	if err != nil {
 		return nil, errors.NewStorageError("failed to insert genesis transaction", err)
 	}
@@ -759,7 +759,7 @@ func createSqliteSchema(db *usql.DB) error {
 	return nil
 }
 
-func (s *SQL) insertGenesisTransaction(logger ulogger.Logger) error {
+func (s *SQL) insertGenesisTransaction(logger ulogger.Logger, chainParams *chaincfg.Params) error {
 	q := `
 		SELECT
 	     hash
@@ -781,7 +781,7 @@ func (s *SQL) insertGenesisTransaction(logger ulogger.Logger) error {
 	}
 
 	if len(hash) == 0 {
-		wireGenesisBlock := s.chainParams.GenesisBlock
+		wireGenesisBlock := chainParams.GenesisBlock
 
 		genesisBlock, err := model.NewBlockFromMsgBlock(wireGenesisBlock, nil)
 		if err != nil {
@@ -808,9 +808,9 @@ func (s *SQL) insertGenesisTransaction(logger ulogger.Logger) error {
 		} else if s.engine == util.Postgres {
 			_, _ = s.db.Exec("SET session_replication_role = 'origin'")
 		}
-	} else if !bytes.Equal(hash, s.chainParams.GenesisHash[:]) {
+	} else if !bytes.Equal(hash, chainParams.GenesisHash[:]) {
 		// Check the chainParams genesis block hash is the same as the one in the database
-		return errors.NewConfigurationError("genesis block hash mismatch: bytes is %x, expected %x", hash, s.chainParams.GenesisHash[:])
+		return errors.NewConfigurationError("genesis block hash mismatch: bytes is %x, expected %x", hash, chainParams.GenesisHash[:])
 	}
 
 	return nil

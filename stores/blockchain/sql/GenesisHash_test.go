@@ -107,9 +107,7 @@ func TestGenesisHashWrongParams(t *testing.T) {
 			defer store.Close()
 
 			// Now try to insert the wrong genesis block
-			store.chainParams = tc.wrongParams
-
-			err = store.insertGenesisTransaction(logger)
+			err = store.insertGenesisTransaction(logger, tc.wrongParams)
 
 			// Verify we get a configuration error about mismatched genesis hash
 			assert.ErrorContains(t, err, "genesis block hash mismatch")
