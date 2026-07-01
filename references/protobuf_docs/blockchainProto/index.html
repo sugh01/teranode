@@ -1120,6 +1120,8 @@
       
         
       
+        
+      
     
     
     
@@ -1208,6 +1210,34 @@
     
   
     Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../howto/miners/kubernetes/minersHowToExposeP2P/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    P2P Public Exposure (Kubernetes)
   
 
     
@@ -5189,17 +5219,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#waitfsmtotransitionrequest" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WaitFSMToTransitionRequest
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#getblockheadersfromcommonancestorrequest" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -8033,17 +8052,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#waitfsmtotransitionrequest" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WaitFSMToTransitionRequest
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#getblockheadersfromcommonancestorrequest" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -8362,9 +8370,8 @@
 <li><a href="#SetBlockSubtreesSetRequest">SetBlockSubtreesSetRequest</a></li>
 <li><a href="#SetStateRequest">SetStateRequest</a></li>
 <li><a href="#StateResponse">StateResponse</a></li>
-<li><a href="#SubscribeRequest">SubscribeRequest</a></li>
 <li>
-<p><a href="#WaitFSMToTransitionRequest">WaitFSMToTransitionRequest</a></p>
+<p><a href="#SubscribeRequest">SubscribeRequest</a></p>
 </li>
 <li>
 <p><a href="#FSMEventType">FSMEventType</a></p>
@@ -9881,27 +9888,6 @@
 </tr>
 </tbody>
 </table>
-<p><a name="WaitFSMToTransitionRequest"></a></p>
-<h3 id="waitfsmtotransitionrequest">WaitFSMToTransitionRequest<a class="headerlink" href="#waitfsmtotransitionrequest" title="Permanent link">&para;</a></h3>
-<p>swagger:model WaitFSMToTransitionRequest</p>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Label</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>state</td>
-<td><a href="#blockchain_api-FSMStateType">FSMStateType</a></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
 <p><a name="GetBlockHeadersFromCommonAncestorRequest"></a></p>
 <h3 id="getblockheadersfromcommonancestorrequest">GetBlockHeadersFromCommonAncestorRequest<a class="headerlink" href="#getblockheadersfromcommonancestorrequest" title="Permanent link">&para;</a></h3>
 <p>GetBlockHeadersFromCommonAncestorRequest retrieves headers from a common ancestor to a target block.</p>
@@ -10147,11 +10133,6 @@
 <td>2</td>
 <td>Start catching up blocks</td>
 </tr>
-<tr>
-<td>LEGACYSYNC</td>
-<td>3</td>
-<td>Start legacy synchronization</td>
-</tr>
 </tbody>
 </table>
 <p><a name="FSMStateType"></a></p>
@@ -10180,11 +10161,6 @@
 <td>CATCHINGBLOCKS</td>
 <td>2</td>
 <td>Service is catching up blocks</td>
-</tr>
-<tr>
-<td>LEGACYSYNCING</td>
-<td>3</td>
-<td>Service is in legacy sync mode</td>
 </tr>
 </tbody>
 </table>
@@ -10470,12 +10446,6 @@
 <td>Retrieves the current state of the FSM.</td>
 </tr>
 <tr>
-<td>WaitFSMToTransitionToGivenState</td>
-<td><a href="#blockchain_api-WaitFSMToTransitionRequest">WaitFSMToTransitionRequest</a></td>
-<td><a href="#google-protobuf-Empty">.google.protobuf.Empty</a></td>
-<td>Waits for FSM to reach a specific state.</td>
-</tr>
-<tr>
 <td>WaitUntilFSMTransitionFromIdleState</td>
 <td><a href="#google-protobuf-Empty">.google.protobuf.Empty</a></td>
 <td><a href="#google-protobuf-Empty">.google.protobuf.Empty</a></td>
@@ -10492,12 +10462,6 @@
 <td><a href="#google-protobuf-Empty">.google.protobuf.Empty</a></td>
 <td><a href="#google-protobuf-Empty">.google.protobuf.Empty</a></td>
 <td>Initiates block catch-up process.</td>
-</tr>
-<tr>
-<td>LegacySync</td>
-<td><a href="#google-protobuf-Empty">.google.protobuf.Empty</a></td>
-<td><a href="#google-protobuf-Empty">.google.protobuf.Empty</a></td>
-<td>Initiates legacy synchronization process.</td>
 </tr>
 <tr>
 <td>Idle</td>
